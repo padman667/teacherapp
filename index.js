@@ -3,6 +3,8 @@ const app = express();
 const { initializeApp } = require("firebase/app");
 const { getAuth } = require("firebase/auth");
 const { GPT4All } = require("gpt4all");
+const { getAIResponse } = require("./services/ai");
+
 
 // Firebase configuration
 const firebaseConfig = {
@@ -30,27 +32,18 @@ app.post("/learn", async (req, res) => {
       return res.status(400).json({ error: "Kein Thema angegeben" });
     }
 
-    // Ausführlichere Antwort
-    const response = `
-      Hier ist eine Lektion über ${topic}:
+    // KI-generierte Antwort abrufen
+    const aiResponse = await getAIResponse(topic);
+    
+    // Antwort an Client senden
+    res.json({ content: aiResponse });
 
-      1. Grundlegende Erklärung:
-      ${topic} ist ein wichtiges Thema zum Lernen. Es umfasst verschiedene Aspekte, 
-      die wir Schritt für Schritt erkunden werden.
-
-      2. Beispiel:
-      Ein praktisches Beispiel zu ${topic} wäre: Wenn wir ${topic} im Alltag 
-      betrachten, sehen wir oft...
-
-      3. Übungsfrage:
-      Erkläre in deinen eigenen Worten: Was sind die wichtigsten Aspekte von ${topic} 
-      und warum sind sie bedeutsam?
-    `;
-
-    res.json({ content: response });
   } catch (error) {
     console.error("Server error:", error);
-    res.status(500).json({ error: "Serverfehler beim Generieren der Antwort" });
+    res.status(500).json({ 
+      error: "Serverfehler beim Generieren der Antwort",
+      details: error.message 
+    });
   }
 });
 
