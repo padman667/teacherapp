@@ -1,17 +1,22 @@
 const { createCompletion, loadModel } = require('gpt4all');
 const path = require('path');
+const fs = require('fs');
 
 async function getAIResponse(topic) {
   try {
-    // Definiere einen spezifischen Modell-Speicherort
+    // Definiere und erstelle Modell-Verzeichnis falls nicht vorhanden
     const modelPath = path.join(process.cwd(), 'models');
-    console.log('Model path:', modelPath); // Debugging
+    if (!fs.existsSync(modelPath)) {
+      fs.mkdirSync(modelPath, { recursive: true });
+    }
+    console.log('Model path:', modelPath);
     
-    // Lade das Modell mit spezifischem Pfad
-    const model = await loadModel('mistral-7b-instruct-v0.1.Q4_0.gguf', { 
+    // Verwende ein kleineres Modell
+    const model = await loadModel('orca-mini-3b-gguf2-q4_0.gguf', { 
       modelPath: modelPath,
       verbose: true 
     });
+    console.log('Model loaded successfully');
 
     const prompt = `
       Als Lehrer, erkläre das Thema "${topic}" auf Deutsch. 
@@ -27,6 +32,7 @@ async function getAIResponse(topic) {
       [Deine Frage hier]
     `;
 
+    console.log('Generating response...');
     const response = await createCompletion(model, prompt, {
       temp: 0.7,
       maxTokens: 500,
@@ -37,7 +43,14 @@ async function getAIResponse(topic) {
     return response;
 
   } catch (error) {
-    console.error('AI Error:', error);
+    console.error('Detailed AI Error:', error);
+    // Prüfe Schreibrechte
+    try {
+      fs.accessSync(modelPath, fs.constants.W_OK);
+      console.log('Write permissions OK');
+    } catch (e) {
+      console.error('No write permissions to model directory:', e);
+    }
     throw new Error(`Fehler bei der KI-Generierung: ${error.message}`);
   }
 }
