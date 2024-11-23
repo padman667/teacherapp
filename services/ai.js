@@ -2,8 +2,8 @@ const { createCompletion, loadModel } = require('gpt4all');
 
 async function getAIResponse(topic) {
   try {
-    // Lade das Modell
-    const model = await loadModel('gpt4all-j-v1.3-groovy', { verbose: true });
+    // Lade ein aktuelles Modell
+    const model = await loadModel('mistral-7b-instruct-v0.1.Q4_0.gguf', { verbose: true });
 
     const prompt = `
       Als Lehrer, erkläre das Thema "${topic}" auf Deutsch. 
