@@ -11,7 +11,7 @@ async function getAIResponse(topic) {
     }
     console.log('Model path:', modelPath);
     
-    // Verwende ein kleineres Modell
+    // Verwende das kleinste verfügbare Modell
     const model = await loadModel('orca-mini-3b-gguf2-q4_0.gguf', { 
       modelPath: modelPath,
       verbose: true 
@@ -44,13 +44,6 @@ async function getAIResponse(topic) {
 
   } catch (error) {
     console.error('Detailed AI Error:', error);
-    // Prüfe Schreibrechte
-    try {
-      fs.accessSync(modelPath, fs.constants.W_OK);
-      console.log('Write permissions OK');
-    } catch (e) {
-      console.error('No write permissions to model directory:', e);
-    }
     throw new Error(`Fehler bei der KI-Generierung: ${error.message}`);
   }
 }
