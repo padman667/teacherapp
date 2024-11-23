@@ -1,49 +1,41 @@
-const { createCompletion, loadModel } = require('gpt4all');
-const path = require('path');
-const fs = require('fs');
-
 async function getAIResponse(topic) {
   try {
-    // Definiere und erstelle Modell-Verzeichnis falls nicht vorhanden
-    const modelPath = path.join(process.cwd(), 'models');
-    if (!fs.existsSync(modelPath)) {
-      fs.mkdirSync(modelPath, { recursive: true });
-    }
-    console.log('Model path:', modelPath);
-    
-    // Verwende das kleinste verfügbare Modell
-    const model = await loadModel('orca-mini-3b-gguf2-q4_0.gguf', { 
-      modelPath: modelPath,
-      verbose: true 
-    });
-    console.log('Model loaded successfully');
+    // Simulierte Antwort für Testzwecke
+    const responses = {
+      default: {
+        grundlegend: "Dies ist ein faszinierendes Thema in unserem Alltag.",
+        beispiel: "Ein praktisches Beispiel aus dem Alltag wäre...",
+        frage: "Wie würdest du dieses Konzept in deinen eigenen Worten erklären?"
+      },
+      mathematik: {
+        grundlegend: "Mathematik ist die Wissenschaft der Muster und Strukturen.",
+        beispiel: "Wenn du 5 Äpfel hast und 3 verschenkst, bleiben 2 übrig.",
+        frage: "Wie würdest du die Grundrechenarten jemandem erklären?"
+      },
+      programmierung: {
+        grundlegend: "Programmierung ist die Kunst, Computer Anweisungen zu geben.",
+        beispiel: "Ein einfaches Programm könnte 'Hallo Welt' ausgeben.",
+        frage: "Welche Programmiersprache würdest du für Anfänger empfehlen und warum?"
+      }
+    };
 
-    const prompt = `
-      Als Lehrer, erkläre das Thema "${topic}" auf Deutsch. 
-      Formatiere deine Antwort EXAKT wie folgt:
+    // Wähle passende Antwort oder Standard
+    const response = responses[topic.toLowerCase()] || responses.default;
 
+    // Formatiere die Antwort
+    return `
       1. Grundlegende Erklärung:
-      [Deine Erklärung hier]
+      ${response.grundlegend}
 
       2. Beispiel:
-      [Dein Beispiel hier]
+      ${response.beispiel}
 
       3. Übungsfrage:
-      [Deine Frage hier]
+      ${response.frage}
     `;
 
-    console.log('Generating response...');
-    const response = await createCompletion(model, prompt, {
-      temp: 0.7,
-      maxTokens: 500,
-      topK: 40,
-      topP: 0.9,
-    });
-
-    return response;
-
   } catch (error) {
-    console.error('Detailed AI Error:', error);
+    console.error('AI Error:', error);
     throw new Error(`Fehler bei der KI-Generierung: ${error.message}`);
   }
 }
